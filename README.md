@@ -1,1 +1,2 @@
-# An-lisis_Num-rico_UCSE
+Analisis Numerico 2026 
+-- Equipo de Franco Audagnotti & Luciano Rivardo
