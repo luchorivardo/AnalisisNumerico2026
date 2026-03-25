@@ -1,12 +1,38 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Graficador.Models;
+using Graficador.Service;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Graficador.Controllers
 {
-    public class AnalysisController : Controller
+    [ApiController]
+    [Route("api/[controller]")]
+    public class CalculatorController : ControllerBase
     {
-        public IActionResult Index()
+        private readonly NumericalEngine _service = new();
+
+        [HttpPost("calculate")]
+        public IActionResult Calculate([FromBody] CalculationRequest request)
         {
-            return View();
+            try
+            {
+                CalculationResponse result;
+                switch (request.Method.ToLower())
+                {
+                    case "bisection":
+                        result = _service.Bisection(request.Function, request.XStart, request.XEnd, request.Tolerance);
+                        break;
+                    case "newton":
+                        result = _service.NewtonRaphson(request.Function, request.XStart, request.Tolerance);
+                        break;
+                    default:
+                        return BadRequest("Método no soportado.");
+                }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
