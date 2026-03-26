@@ -1,0 +1,54 @@
+﻿/* FORM CONTENEDOR */
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+/* GRUPOS */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+    /* LABEL */
+    .form-group label {
+        font-size: 13px;
+        font-weight: 500;
+        color: #64748b;
+    }
+
+    /* INPUT */
+    .form-group input {
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        background: #ecf0f5;
+        font-size: 14px;
+        transition: all 0.2s ease;
+    }
+
+        /* HOVER */
+        .form-group input:hover {
+            background: #e2e8f0;
+        }
+
+        /* FOCUS */
+        .form-group input:focus {
+            background: #ffffff;
+            border-color: #cbd5f5;
+            box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
+        }
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+input[type="number"]:focus::-webkit-inner-spin-button,
+input[type="number"]:focus::-webkit-outer-spin-button {
+    opacity: 1;
+    pointer-events: auto;
+}

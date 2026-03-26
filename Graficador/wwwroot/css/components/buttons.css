@@ -1,0 +1,21 @@
+﻿/* BOTÓN */
+.btn-primary {
+    margin-top: 34px;
+    padding: 10px;
+    border-radius: 8px;
+    background: #111827;
+    color: white;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    font-family: 'Montserrat', sans-serif;
+}
+
+    /* HOVER BOTÓN */
+    .btn-primary:hover {
+        background: #1e293b;
+    }
+
+    /* CLICK */
+    .btn-primary:active {
+        transform: scale(0.98);
+    }
