@@ -1,0 +1,123 @@
+﻿<div class="app-container">
+
+    <div class="sidebar">
+        <!-- SWITCH MODERNO -->
+        <div class="switch-container">
+            <div class="switch-slider"></div>
+
+            <div class="switch-option active"
+                 data-url="/Methods/Closed"
+                 data-index="0">
+                Métodos cerrados
+            </div>
+
+            <div class="switch-option"
+                 data-url="/Methods/Open"
+                 data-index="1">
+                Métodos abiertos
+            </div>
+        </div>
+
+        <!-- CONTENIDO DINÁMICO -->
+        <div id="methods-container">
+            @Html.Partial("_ClosedMethods")
+        </div>
+    </div>
+    <!-- PANEL DERECHO -->
+    <div class="main-panel">
+
+        <!-- TARJETA DE RESULTADOS -->
+        <div class="result-card">
+
+            <div class="result-header">
+                <h3>Bisección</h3>
+                <div class="equation">x + 5</div>
+            </div>
+
+            <div class="result-body">
+                <div class="result-row">
+                    <strong>Resultados:</strong>
+                </div>
+                <div class="result-row">
+                    <span>Iteraciones</span>
+                    <strong>56 / 100</strong>
+                </div>
+
+                <div class="result-row">
+                    <span>Error relativo</span>
+                    <strong>0.000085</strong>
+                </div>
+
+                <div class="result-row highlight">
+                    <span>Raíz</span>
+                    <strong>-5.000061</strong>
+                </div>
+
+                <div class="result-footer">
+                    <span>Intervalo: [-7 , 0]</span>
+                    <span>Tolerancia: 0.0001</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- GRÁFICO -->
+        <div class="graph-card">
+            <div class="graph-placeholder">
+                Aquí irá la gráfica 📈
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("click", function(e) {
+
+        /* SWITCH PRINCIPAL */
+        if (e.target.classList.contains("switch-option")) {
+
+            const container = e.target.closest(".switch-container");
+            const slider = container.querySelector(".switch-slider");
+            const options = container.querySelectorAll(".switch-option");
+
+            options.forEach(o => o.classList.remove("active"));
+            e.target.classList.add("active");
+
+            const index = e.target.dataset.index;
+
+            slider.style.transform = `translateX(${index * 100}%)`;
+
+            const url = e.target.dataset.url;
+
+            fetch(url)
+                .then(res => res.text())
+                .then(html => {
+                    document.getElementById("methods-container").innerHTML = html;
+                });
+        }
+
+        /* SWITCH SECUNDARIO */
+        if (e.target.classList.contains("switch-sub")) {
+
+            const container = e.target.closest(".switch-container");
+            const slider = container.querySelector(".switch-slider");
+            const options = container.querySelectorAll(".switch-sub");
+
+            options.forEach(o => o.classList.remove("active"));
+            e.target.classList.add("active");
+
+            const index = e.target.dataset.index;
+
+            slider.style.transform = `translateX(${index * 100}%)`;
+
+            const url = e.target.dataset.url;
+
+            fetch(url)
+                .then(res => res.text())
+                .then(html => {
+                    document.getElementById("form-container").innerHTML = html;
+                });
+        }
+
+    });
+</script>

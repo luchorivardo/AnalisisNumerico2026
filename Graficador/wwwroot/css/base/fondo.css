@@ -1,0 +1,6 @@
+/* Fondo cuadriculado */
+body {
+    background-color: #ffffff;
+    background-image: linear-gradient(#e5e7eb 1px, transparent 1px), linear-gradient(90deg, #e5e7eb 1px, transparent 1px);
+    background-size: 20px 20px;
+}

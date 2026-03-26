@@ -1,0 +1,25 @@
+﻿<div>
+
+    <!-- SWITCH SECUNDARIO MODERNO -->
+    <div class="switch-container switch-sub-container">
+        <div class="switch-slider"></div>
+
+        <div class="switch-sub active"
+             data-url="/Methods/Newton"
+             data-index="0">
+            Newton-Raphson
+        </div>
+
+        <div class="switch-sub"
+             data-url="/Methods/Secant"
+             data-index="1">
+            Secante
+        </div>
+    </div>
+
+    <!-- FORM DINÁMICO -->
+    <div id="form-container">
+        @Html.Partial("_BisectionForm")
+    </div>
+
+</div>

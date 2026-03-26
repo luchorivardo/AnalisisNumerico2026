@@ -1,0 +1,11 @@
+﻿.sidebar {
+    width: 400px;
+    height: 100%;
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    border: 2px solid #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+}
