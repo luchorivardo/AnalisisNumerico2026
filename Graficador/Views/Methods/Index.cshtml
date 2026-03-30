@@ -31,45 +31,47 @@
 
             <div class="result-header">
                 <h3>Bisección</h3>
-                <div class="equation">x + 5</div>
+                <div id="res-function" class="equation">f(x)=x+5</div>
             </div>
 
             <div class="result-body">
                 <div class="result-row">
                     <strong>Resultados:</strong>
                 </div>
+
                 <div class="result-row">
                     <span>Iteraciones</span>
-                    <strong>56 / 100</strong>
+                    <strong id="res-iterations">-</strong>
                 </div>
 
                 <div class="result-row">
                     <span>Error relativo</span>
-                    <strong>0.000085</strong>
+                    <strong id="res-error">-</strong>
                 </div>
 
                 <div class="result-row highlight">
                     <span>Raíz</span>
-                    <strong>-5.000061</strong>
+                    <strong id="res-root">-</strong>
                 </div>
 
                 <div class="result-footer">
-                    <span>Intervalo: [-7 , 0]</span>
-                    <span>Tolerancia: 0.0001</span>
+                    <span id="res-interval">Intervalo: -</span>
+                    <span id="res-tolerance">Tolerancia: -</span>
                 </div>
             </div>
 
         </div>
 
         <!-- GRÁFICO -->
-        <div class="graph-card">
+        <div class="graph-card">           
             <div class="graph-placeholder">
-                Aquí irá la gráfica 📈
+                <div id="ggb-element"></div>
             </div>
         </div>
     </div>
 </div>
 
+<script src="https://www.geogebra.org/apps/deployggb.js"></script>
 <script>
     document.addEventListener("click", function(e) {
 
@@ -121,3 +123,5 @@
 
     });
 </script>
+<script src="~/js/form.js" asp-append-version="true"></script>
+<script src="~/js/geogebra-bridge.js" asp-append-version="true"></script>

@@ -19,10 +19,10 @@ namespace Graficador.Controllers
                 switch (request.Method.ToLower())
                 {
                     case "bisection":
-                        result = _service.Bisection(request.Function, request.XStart, request.XEnd, request.Tolerance);
+                        result = _service.Bisection(request.Function, request.XStart, request.XEnd, request.Tolerance, request.MaxIterations);
                         break;
                     case "newton":
-                        result = _service.NewtonRaphson(request.Function, request.XStart, request.Tolerance);
+                        result = _service.NewtonRaphson(request.Function, request.XStart, request.Tolerance, request.MaxIterations);
                         break;
                     default:
                         return BadRequest("Método no soportado.");

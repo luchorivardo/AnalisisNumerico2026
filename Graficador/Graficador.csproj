@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <Reference Include="Calculus">
-      <HintPath>AnalisisNumerico2026\Calculus.dll</HintPath>
+      <HintPath>libs\Calculus.dll</HintPath>
     </Reference>
   </ItemGroup>
 
