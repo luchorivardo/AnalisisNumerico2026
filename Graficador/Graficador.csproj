@@ -9,8 +9,8 @@
 
   <ItemGroup>
     <Reference Include="Calculus">
-      <HintPath>..\..\..\..\Desktop\Calculus.dll</HintPath>
+      <HintPath>libs\Calculus.dll</HintPath>
     </Reference>
-
+  </ItemGroup>
 
 </Project>

@@ -1,4 +1,6 @@
 ﻿<form id="calc-form" class="form">
+    <input type="hidden" name="method" value="bisection">
+
     <div class="form-group">
         <label>Función</label>
         <input type="text" name="function" value="x+5">
@@ -16,12 +18,12 @@
 
     <div class="form-group">
         <label>Iteraciones</label>
-        <input type="number" name="xd">
+        <input type="number" name="iterations">
     </div>
 
     <div class="form-group">
         <label>Tolerancia</label>
-        <input type="number" name="xd">
+        <input type="number" name="tolerance" step="any">
     </div>
 
     <button type="submit" class="btn-primary">Calcular</button>
