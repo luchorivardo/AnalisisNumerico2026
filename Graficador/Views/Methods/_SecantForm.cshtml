@@ -1,5 +1,30 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿<form id="secant-form" class="form">
+    <input type="hidden" name="method" value="secant">
+
+    <div class="form-group">
+        <label>Función</label>
+        <input type="text" name="function" value="x^3-x-2">
+    </div>
+
+    <div class="form-group">
+        <label>Xi</label>
+        <input type="number" name="xi">
+    </div>
+
+    <div class="form-group">
+        <label>Xd</label>
+        <input type="number" name="xd">
+    </div>
+
+    <div class="form-group">
+        <label>Iteraciones</label>
+        <input type="number" name="iterations">
+    </div>
+
+    <div class="form-group">
+        <label>Tolerancia</label>
+        <input type="number" name="tolerance" step="any">
+    </div>
+
+    <button type="submit" class="btn-primary">Calcular</button>
+</form>

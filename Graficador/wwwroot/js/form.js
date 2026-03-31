@@ -1,16 +1,20 @@
 ﻿console.log("JS cargado");
 document.addEventListener("submit", function (e) {
     console.log("Submit detectado");
-    if (e.target.id === "calc-form") {
+    const forms = ["bisection-form", "falseRule-form"];
+
+    if (e.target.classList.contains("form")) {
         e.preventDefault();
 
         const formData = new FormData(e.target);
+        const xi = formData.get("xi");
+        const xd = formData.get("xd");
 
         const data = {
             method: formData.get("method"),
             function: formData.get("function"),
-            xStart: parseFloat(formData.get("xi")),
-            xEnd: parseFloat(formData.get("xd")),
+            xStart: xi ? parseFloat(xi) : null,
+            xEnd: xd ? parseFloat(xd) : null,
             tolerance: parseFloat(formData.get("tolerance")),
             maxIterations: parseInt(formData.get("iterations"))
         };
@@ -31,7 +35,7 @@ document.addEventListener("submit", function (e) {
 
                 // Iteraciones
                 document.getElementById("res-iterations").innerText =
-                    result.iterations.length;
+                    `${result.iterations.length}/${data.maxIterations}`;
 
                 // Error
                 document.getElementById("res-error").innerText =
@@ -42,8 +46,13 @@ document.addEventListener("submit", function (e) {
                     parseFloat(result.root).toFixed(6);
 
                 // Intervalo
-                document.getElementById("res-interval").innerText =
-                    `Intervalo: [${data.xStart}, ${data.xEnd}]`;
+                const intervalEl = document.getElementById("res-interval");
+
+                if (data.method === "newton") {
+                    intervalEl.innerText = `Punto inicial: ${data.xStart}`;
+                } else {
+                    intervalEl.innerText = `Intervalo: [${data.xStart}, ${data.xEnd}]`;
+                }
 
                 // Tolerancia
                 document.getElementById("res-tolerance").innerText =
