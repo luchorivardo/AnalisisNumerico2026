@@ -8,17 +8,28 @@ namespace Graficador.Service
     {
         private readonly Calculo _analizador = new Calculo();
 
+        // =========================
+        // MANAGER
+        // =========================
         public CalculationResponse ExecuteMethod(CalculationRequest req)
         {
             if (!_analizador.Sintaxis(req.Function, 'x'))
                 throw new Exception("Error de sintaxis en la función.");
 
+            if (req.Tolerance <= 0)
+                throw new Exception("La tolerancia debe ser positiva.");
+
+            if (req.MaxIterations <= 0)
+                throw new Exception("Las iteraciones deben ser mayores que cero.");
+
             return req.Method.ToLower() switch
             {
-                "bisection" => Bisection(req.Function, req.XStart, req.XEnd, req.Tolerance, req.MaxIterations),
-                "reglafalsa" => ReglaFalsa(req.Function, req.XStart, req.XEnd, req.Tolerance, req.MaxIterations),
-                "newton" => NewtonRaphson(req.Function, req.XStart, req.Tolerance, req.MaxIterations),
-                "secante" => Secante(req.Function, req.XStart, req.XEnd, req.Tolerance, req.MaxIterations),
+                "bisection" or "falserule"
+                    => ClosedMethod(req.Method.ToLower(), req.Function, req.XStart, req.XEnd, req.Tolerance, req.MaxIterations),
+
+                "newton" or "secant"
+                    => OpenMethod(req.Method.ToLower(), req.Function, req.XStart, req.XEnd, req.Tolerance, req.MaxIterations),
+
                 _ => throw new Exception("Método no implementado")
             };
         }
@@ -26,23 +37,23 @@ namespace Graficador.Service
         // =========================
         // MÉTODOS CERRADOS
         // =========================
-
-        public CalculationResponse Bisection(string fx, double xi, double xd, double tol, int maxIter)
+        private CalculationResponse ClosedMethod(string method, string fx, double? xi, double? xd, double tol, int maxIter)
         {
+            if (xi == null || xd == null)
+                throw new Exception("Los métodos cerrados requieren Xi y Xd.");
+
+            double xLeft = xi.Value;
+            double xRight = xd.Value;
+
             var res = new CalculationResponse();
 
-            if (!_analizador.Sintaxis(fx, 'x'))
-                throw new Exception("Error de sintaxis en la función.");
-
-            double fXi = _analizador.EvaluaFx(xi);
-            double fXd = _analizador.EvaluaFx(xd);
+            double fXi = _analizador.EvaluaFx(xLeft);
+            double fXd = _analizador.EvaluaFx(xRight);
 
             if (fXi * fXd > 0)
                 throw new Exception("El intervalo no contiene raíz.");
 
-            string ggb = "";
-            ggb += $"f(x)={fx};";
-
+            string ggb = $"f(x)={fx};";
 
             double xr = 0;
             double xrAnterior = 0;
@@ -50,7 +61,12 @@ namespace Graficador.Service
 
             for (int i = 1; i <= maxIter; i++)
             {
-                xr = (xi + xd) / 2;
+                xr = method switch
+                {
+                    "bisection" => (xLeft + xRight) / 2,
+                    "falserule" => (fXd * xLeft - fXi * xRight) / (fXd - fXi),
+                    _ => throw new Exception("Método cerrado no válido")
+                };
 
                 double fXr = _analizador.EvaluaFx(xr);
 
@@ -70,160 +86,145 @@ namespace Graficador.Service
 
                 if (fXi * fXr > 0)
                 {
-                    xi = xr;
+                    xLeft = xr;
                     fXi = fXr;
                 }
                 else
                 {
-                    xd = xr;
+                    xRight = xr;
                     fXd = fXr;
                 }
 
                 xrAnterior = xr;
             }
 
-            // -----------------------
-            // GEO GEBRA (solo última iteración)
-            // -----------------------
+            string xrStr = xr.ToString(CultureInfo.InvariantCulture);
 
-            string xiStr = xi.ToString(System.Globalization.CultureInfo.InvariantCulture);
-            string xdStr = xd.ToString(System.Globalization.CultureInfo.InvariantCulture);
-            string xrStr = xr.ToString(System.Globalization.CultureInfo.InvariantCulture);
-
-            // puntos
-            ggb += $"PXi=({xiStr},f({xiStr}));";
             ggb += $"PXr=({xrStr},f({xrStr}));";
-            ggb += $"PXd=({xdStr},f({xdStr}));";
-
-            // líneas verticales
-            //ggb += $"Xi: x={xiStr};";
             ggb += $"Xr: x={xrStr};";
-            //ggb += $"Xd: x={xdStr};";
 
-        
-
-            res.Root = xr.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            res.Root = xrStr;
             res.GgbCommand = ggb;
 
-            return res;
-        }
-        public CalculationResponse ReglaFalsa(string fx, double a, double b, double tol, int maxIter)
-        {
-            var res = new CalculationResponse();
-
-            double xr = a, xrOld = a, error = double.MaxValue;
-            int iter = 0;
-
-            while (error > tol && iter < maxIter)
-            {
-                xrOld = xr;
-
-                double fA = _analizador.EvaluaFx(a);
-                double fB = _analizador.EvaluaFx(b);
-
-                xr = b - (fB * (a - b)) / (fA - fB);
-                double fXr = _analizador.EvaluaFx(xr);
-
-                if (xr != 0)
-                    error = Math.Abs((xr - xrOld) / xr);
-
-                res.Iterations.Add(new IterationPoint
-                {
-                    Iteration = iter,
-                    X = xr,
-                    Y = fXr,
-                    Error = error
-                });
-
-                if (fA * fXr < 0)
-                    b = xr;
-                else
-                    a = xr;
-
-                iter++;
-            }
-
-            res.Root = xr.ToString();
             return res;
         }
 
         // =========================
         // MÉTODOS ABIERTOS
         // =========================
-
-        public CalculationResponse NewtonRaphson(string fx, double x0, double tol, int maxIter)
+        private CalculationResponse OpenMethod(string method, string fx, double? xi, double? xd, double tol, int maxIter)
         {
+            if (xi == null)
+                throw new Exception("Debe ingresar Xi.");
+
+            if (method == "secant" && xd == null)
+                throw new Exception("El método de la secante requiere Xi y Xd.");
+
+            double xLeft = xi.Value;
+            double xRight = xd ?? 0;
+
             var res = new CalculationResponse();
 
-            double xn = x0, error = double.MaxValue;
-            int iter = 0;
+            string ggb = $"f(x)={fx};";
 
-            while (error > tol && iter < maxIter)
+            double xr = 0;
+            double xrAnterior = 0;
+            double error = double.MaxValue;
+
+            double fXi = _analizador.EvaluaFx(xLeft);
+
+            if (Math.Abs(fXi) < tol)
             {
-                double fxn = _analizador.EvaluaFx(xn);
-                double dfxn = _analizador.Dx(xn);
+                res.Root = xLeft.ToString(CultureInfo.InvariantCulture);
+                return res;
+            }
 
-                if (dfxn == 0)
-                    throw new Exception("Derivada cero, no se puede continuar.");
+            if (method == "secant")
+            {
+                double fXd = _analizador.EvaluaFx(xRight);
 
-                double xNext = xn - (fxn / dfxn);
+                if (Math.Abs(fXd) < tol)
+                {
+                    res.Root = xRight.ToString(CultureInfo.InvariantCulture);
+                    return res;
+                }
+            }
 
-                if (xNext != 0)
-                    error = Math.Abs((xNext - xn) / xNext);
+            for (int i = 1; i <= maxIter; i++)
+            {
+                xr = method switch
+                {
+                    "newton" => CalcularNewton(xLeft, tol),
+                    "secant" => CalcularSecante(xLeft, xRight),
+                    _ => throw new Exception("Método abierto no válido")
+                };
 
-                xn = xNext;
+                if (double.IsNaN(xr) || double.IsInfinity(xr))
+                    throw new Exception("El método diverge.");
+
+                double fXr = _analizador.EvaluaFx(xr);
+
+                if (i > 1 && xr != 0)
+                    error = Math.Abs((xr - xrAnterior) / xr);
 
                 res.Iterations.Add(new IterationPoint
                 {
-                    Iteration = iter,
-                    X = xn,
-                    Y = fxn,
+                    Iteration = i,
+                    X = xr,
+                    Y = fXr,
                     Error = error
                 });
 
-                iter++;
+                if (Math.Abs(fXr) < tol || error < tol)
+                    break;
+
+                if (method == "newton")
+                {
+                    xLeft = xr;
+                }
+                else
+                {
+                    xLeft = xRight;
+                    xRight = xr;
+                }
+
+                xrAnterior = xr;
             }
 
-            res.Root = xn.ToString();
+            string xrStr = xr.ToString(CultureInfo.InvariantCulture);
+
+            ggb += $"PXr=({xrStr},f({xrStr}));";
+            ggb += $"Xr: x={xrStr};";
+
+            res.Root = xrStr;
+            res.GgbCommand = ggb;
+
             return res;
         }
 
-        public CalculationResponse Secante(string fx, double x0, double x1, double tol, int maxIter)
+        // =========================
+        // HELPERS
+        // =========================
+        private double CalcularNewton(double xi, double tol)
         {
-            var res = new CalculationResponse();
+            double fXi = _analizador.EvaluaFx(xi);
+            double derivada = _analizador.Dx(xi);
 
-            double error = double.MaxValue;
-            int iter = 0;
+            if (Math.Abs(derivada) < tol || double.IsNaN(derivada))
+                return double.NaN;
 
-            while (error > tol && iter < maxIter)
-            {
-                double f0 = _analizador.EvaluaFx(x0);
-                double f1 = _analizador.EvaluaFx(x1);
+            return xi - (fXi / derivada);
+        }
 
-                if (f1 - f0 == 0)
-                    throw new Exception("División por cero en secante.");
+        private double CalcularSecante(double xi, double xd)
+        {
+            double fXi = _analizador.EvaluaFx(xi);
+            double fXd = _analizador.EvaluaFx(xd);
 
-                double xNext = x1 - (f1 * (x1 - x0)) / (f1 - f0);
+            if (fXd - fXi == 0)
+                return double.NaN;
 
-                if (xNext != 0)
-                    error = Math.Abs((xNext - x1) / xNext);
-
-                x0 = x1;
-                x1 = xNext;
-
-                res.Iterations.Add(new IterationPoint
-                {
-                    Iteration = iter,
-                    X = x1,
-                    Y = f1,
-                    Error = error
-                });
-
-                iter++;
-            }
-
-            res.Root = x1.ToString();
-            return res;
+            return (fXd * xi - fXi * xd) / (fXd - fXi);
         }
     }
 }

@@ -72,56 +72,6 @@
 </div>
 
 <script src="https://www.geogebra.org/apps/deployggb.js"></script>
-<script>
-    document.addEventListener("click", function(e) {
-
-        /* SWITCH PRINCIPAL */
-        if (e.target.classList.contains("switch-option")) {
-
-            const container = e.target.closest(".switch-container");
-            const slider = container.querySelector(".switch-slider");
-            const options = container.querySelectorAll(".switch-option");
-
-            options.forEach(o => o.classList.remove("active"));
-            e.target.classList.add("active");
-
-            const index = e.target.dataset.index;
-
-            slider.style.transform = `translateX(${index * 100}%)`;
-
-            const url = e.target.dataset.url;
-
-            fetch(url)
-                .then(res => res.text())
-                .then(html => {
-                    document.getElementById("methods-container").innerHTML = html;
-                });
-        }
-
-        /* SWITCH SECUNDARIO */
-        if (e.target.classList.contains("switch-sub")) {
-
-            const container = e.target.closest(".switch-container");
-            const slider = container.querySelector(".switch-slider");
-            const options = container.querySelectorAll(".switch-sub");
-
-            options.forEach(o => o.classList.remove("active"));
-            e.target.classList.add("active");
-
-            const index = e.target.dataset.index;
-
-            slider.style.transform = `translateX(${index * 100}%)`;
-
-            const url = e.target.dataset.url;
-
-            fetch(url)
-                .then(res => res.text())
-                .then(html => {
-                    document.getElementById("form-container").innerHTML = html;
-                });
-        }
-
-    });
-</script>
+<script src="~/js/switches.js" asp-append-version="true"></script>
 <script src="~/js/form.js" asp-append-version="true"></script>
 <script src="~/js/geogebra-bridge.js" asp-append-version="true"></script>

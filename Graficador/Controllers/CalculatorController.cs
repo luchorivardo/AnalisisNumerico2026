@@ -15,18 +15,7 @@ namespace Graficador.Controllers
         {
             try
             {
-                CalculationResponse result;
-                switch (request.Method.ToLower())
-                {
-                    case "bisection":
-                        result = _service.Bisection(request.Function, request.XStart, request.XEnd, request.Tolerance, request.MaxIterations);
-                        break;
-                    case "newton":
-                        result = _service.NewtonRaphson(request.Function, request.XStart, request.Tolerance, request.MaxIterations);
-                        break;
-                    default:
-                        return BadRequest("Método no soportado.");
-                }
+                var result = _service.ExecuteMethod(request);
                 return Ok(result);
             }
             catch (Exception ex)
