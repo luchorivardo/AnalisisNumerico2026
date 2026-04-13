@@ -3,6 +3,8 @@ document.addEventListener("submit", function (e) {
     console.log("Submit detectado");
     const forms = ["bisection-form", "falseRule-form"];
 
+
+
     if (e.target.classList.contains("form")) {
         e.preventDefault();
 
@@ -10,11 +12,15 @@ document.addEventListener("submit", function (e) {
         const xi = formData.get("xi");
         const xd = formData.get("xd");
 
+
+        const xiValue = formData.get("xi")?.toString().replace(',', '.');
+        const xdValue = formData.get("xd")?.toString().replace(',', '.');
+
         const data = {
             method: formData.get("method"),
             function: formData.get("function"),
-            xStart: xi ? parseFloat(xi) : null,
-            xEnd: xd ? parseFloat(xd) : null,
+            xStart: xiValue ? parseFloat(xiValue) : null,
+            xEnd: xdValue ? parseFloat(xdValue) : null,
             tolerance: parseFloat(formData.get("tolerance")),
             maxIterations: parseInt(formData.get("iterations"))
         };
