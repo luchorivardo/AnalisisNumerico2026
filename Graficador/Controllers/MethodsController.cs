@@ -38,5 +38,9 @@ namespace Graficador.Controllers
         {
             return PartialView("_SecantForm");
         }
+        public IActionResult GaussJordan()
+        {
+            return PartialView("_GaussJordanForm");
+        }
     }
 }
