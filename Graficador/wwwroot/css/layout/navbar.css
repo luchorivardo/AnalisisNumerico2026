@@ -6,15 +6,44 @@
     color: white;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     padding: 0 24px;
-    /* separación visual */
     border-bottom: 1px solid #1f2937;
     box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
-/* TEXTO */
+/* TITULO */
 .navbar-title {
     font-size: 16px;
     font-weight: 600;
     letter-spacing: 0.5px;
 }
+
+/* LINKS CONTAINER */
+.navbar-links {
+    display: flex;
+    gap: 20px;
+}
+
+/* LINK */
+.nav-link {
+    color: #d1d5db;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+    /* HOVER */
+    .nav-link:hover {
+        color: white;
+        background: #1f2937;
+    }
+
+    /* LINK ACTIVO */
+    .nav-link.active {
+        color: white;
+        background: #2563eb;
+    }
