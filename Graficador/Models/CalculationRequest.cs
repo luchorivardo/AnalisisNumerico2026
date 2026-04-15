@@ -8,5 +8,6 @@
         public double? XEnd { get; set; }     // 'b' (para métodos cerrados)
         public double Tolerance { get; set; }
         public int MaxIterations { get; set; }
+        public double[][]? Matrix { get; set; }
     }
 }

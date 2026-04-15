@@ -13,22 +13,31 @@ namespace Graficador.Service
         // =========================
         public CalculationResponse ExecuteMethod(CalculationRequest req)
         {
-            if (!_analizador.Sintaxis(req.Function, 'x'))
-                throw new Exception("Error de sintaxis en la función.");
+            string methodLower = req.Method.ToLower();
 
-            if (req.Tolerance <= 0)
-                throw new Exception("La tolerancia debe ser positiva.");
+            // Validaciones para métodos de búsqueda de raíces (Bisección, Newton, etc.)
+            if (methodLower != "gaussjordan")
+            {
+                if (string.IsNullOrEmpty(req.Function) || !_analizador.Sintaxis(req.Function, 'x'))
+                    throw new Exception("Error de sintaxis en la función.");
 
-            if (req.MaxIterations <= 0)
-                throw new Exception("Las iteraciones deben ser mayores que cero.");
+                if (req.Tolerance <= 0)
+                    throw new Exception("La tolerancia debe ser positiva.");
 
-            return req.Method.ToLower() switch
+                if (req.MaxIterations <= 0)
+                    throw new Exception("Las iteraciones deben ser mayores que cero.");
+            }
+
+            return methodLower switch
             {
                 "bisection" or "falserule"
-                    => ClosedMethod(req.Method.ToLower(), req.Function, req.XStart, req.XEnd, req.Tolerance, req.MaxIterations),
+                    => ClosedMethod(methodLower, req.Function!, req.XStart, req.XEnd, req.Tolerance, req.MaxIterations),
 
                 "newton" or "secant"
-                    => OpenMethod(req.Method.ToLower(), req.Function, req.XStart, req.XEnd, req.Tolerance, req.MaxIterations),
+                    => OpenMethod(methodLower, req.Function!, req.XStart, req.XEnd, req.Tolerance, req.MaxIterations),
+
+                "gaussjordan"
+                     => SolveGaussJordan(req.Matrix),
 
                 _ => throw new Exception("Método no implementado")
             };
@@ -226,5 +235,76 @@ namespace Graficador.Service
 
             return (fXd * xi - fXi * xd) / (fXd - fXi);
         }
+
+    
+    public CalculationResponse SolveGaussJordan(double[][]? matrix)
+        {
+            if (matrix == null || matrix.Length == 0)
+                throw new Exception("La matriz no puede estar vacía.");
+
+            int n = matrix.Length;    // Número de filas (ecuaciones)
+            int m = matrix[0].Length; // Número de columnas (debe ser n + 1)
+
+            if (m != n + 1)
+                throw new Exception("La matriz debe ser aumentada (n x n+1).");
+
+            var res = new CalculationResponse();
+
+            for (int i = 0; i < n; i++)
+            {
+                // --- 1. Pivoteo Parcial ---
+                int pivot = i;
+                for (int k = i + 1; k < n; k++)
+                {
+                    if (Math.Abs(matrix[k][i]) > Math.Abs(matrix[pivot][i]))
+                        pivot = k;
+                }
+
+                // Intercambio de filas (usando una referencia temporal)
+                double[] temp = matrix[pivot];
+                matrix[pivot] = matrix[i];
+                matrix[i] = temp;
+
+                // Verificar si el sistema tiene solución
+                if (Math.Abs(matrix[i][i]) < 1e-12)
+                    throw new Exception("El sistema no tiene solución única o es singular.");
+
+                // --- 2. Normalización (Hacer el pivote = 1) ---
+                double div = matrix[i][i];
+                for (int j = i; j < m; j++)
+                {
+                    matrix[i][j] /= div;
+                }
+
+                // --- 3. Eliminación (Hacer ceros arriba y abajo del pivote) ---
+                for (int k = 0; k < n; k++)
+                {
+                    if (k != i)
+                    {
+                        double factor = matrix[k][i];
+                        for (int j = i; j < m; j++)
+                        {
+                            matrix[k][j] -= factor * matrix[i][j];
+                        }
+                    }
+                }
+            }
+
+            // --- 4. Extracción de Resultados ---
+            // En Gauss-Jordan, tras la eliminación, la última columna contiene las soluciones.
+            List<string> solutions = new List<string>();
+            for (int i = 0; i < n; i++)
+            {
+                // Formateamos como x1 = valor, x2 = valor, etc.
+                double val = Math.Round(matrix[i][n], 6);
+                solutions.Add($"x{i + 1} = {val.ToString(CultureInfo.InvariantCulture)}");
+            }
+
+            res.Root = string.Join(" | ", solutions);
+            res.GgbCommand = ""; // Gauss-Jordan no genera un comando de GeoGebra estándar aquí
+
+            return res;
+        }
     }
+
 }
