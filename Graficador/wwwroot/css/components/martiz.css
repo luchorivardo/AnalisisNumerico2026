@@ -1,0 +1,47 @@
+﻿.matrix-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: center;
+}
+
+.matrix-input {
+    width: 60px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: #ecf0f5;
+    font-size: 14px;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+    /* hover igual que form */
+    .matrix-input:hover {
+        background: #e2e8f0;
+    }
+
+    /* focus igual que form */
+    .matrix-input:focus {
+        background: #ffffff;
+        border-color: #cbd5f5;
+        box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
+    }
+
+    /* ocultar spinners hasta focus */
+    .matrix-input::-webkit-inner-spin-button,
+    .matrix-input::-webkit-outer-spin-button {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .matrix-input:focus::-webkit-inner-spin-button,
+    .matrix-input:focus::-webkit-outer-spin-button {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+/* contenedor matriz */
+#matrix-container {
+    width: fit-content;
+}

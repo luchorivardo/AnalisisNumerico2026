@@ -1,0 +1,74 @@
+﻿<div class="app-container">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <form id="system-form" class="form">
+            <!-- MÉTODOS -->
+            <div class="switch-container">
+                <div class="switch-slider"></div>
+
+                <div class="switch-option active"
+                     data-method="gaussjordan"
+                     data-index="0">
+                    Gauss-Jordan
+                </div>
+
+                <div class="switch-option"
+                     data-method="gaussseidel"
+                     data-index="1">
+                    Gauss-Seidel
+                </div>
+            </div>
+
+            <!-- DIMENSIÓN -->
+            <div class="form-group">
+                <label>Dimensión</label>
+                <input type="number" id="matrix-size" value="3" min="2" max="10">
+            </div>
+
+            <!-- ITERACIONES -->
+            <div class="form-group seidel-only" style="display:none;">
+                <label>Iteraciones</label>
+                <input type="number" id="iterations" value="50">
+            </div>
+
+            <!-- TOLERANCIA -->
+            <div class="form-group seidel-only" style="display:none;">
+                <label>Tolerancia</label>
+                <input type="number" id="tolerance" step="any" value="0.0001">
+            </div>
+
+            <!-- MATRIZ -->
+            <div id="matrix-container">
+                <!-- generado con JS -->
+            </div>
+
+            <!-- BOTÓN -->
+            <button type="submit" class="btn-primary">
+                Calcular
+            </button>
+        </form>
+    </div>
+
+
+    <!-- PANEL DERECHO -->
+    <div class="main-panel">
+        <div class="result-card">
+            <div class="result-header">
+                <h3>Gauss-Jordan</h3>
+            </div>
+
+            <div class="result-body">
+
+                <div class="result-row">
+                    <strong>Solución:</strong>
+                </div>
+
+                <div id="solution-container">
+                    <!-- vector resultado -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/matriz.js" asp-append-version="true"></script>

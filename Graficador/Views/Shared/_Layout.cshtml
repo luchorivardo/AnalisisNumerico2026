@@ -23,13 +23,29 @@
     <link rel="stylesheet" href="~/css/components/cards.css" />
 	<link rel="stylesheet" href="~/css/components/forms.css" />
 	<link rel="stylesheet" href="~/css/components/switches.css" />
+    <link rel="stylesheet" href="~/css/components/martiz.css" />
 </head>
 <body>
+    <!-- NAVBAR -->
     <header class="navbar">
         <div class="navbar-title">
             Análisis Numérico 2026
         </div>
+
+        <nav class="navbar-links">
+            <a asp-controller="Methods"
+               asp-action="Index"
+               class="nav-link">
+                Unidad 1 · Raíces
+            </a>
+            <a asp-controller="Systems"
+               asp-action="Index"
+               class="nav-link">
+                Unidad 2 · Sistemas
+            </a>
+        </nav>
     </header>
+    <!-- CONTENIDO -->
     <div class="container">
         @RenderBody()
     </div>
