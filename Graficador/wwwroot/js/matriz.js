@@ -124,6 +124,7 @@ function generateMatrix(n) {
 
             const input = document.createElement("input");
             input.type = "number";
+            input.step = "any";
             input.classList.add("matrix-input");
 
             // CLAVE
@@ -138,6 +139,7 @@ function generateMatrix(n) {
 
         const b = document.createElement("input");
         b.type = "number";
+        b.step = "any";
         b.classList.add("matrix-input");
 
         // CLAVE (última columna)
