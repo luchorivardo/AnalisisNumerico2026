@@ -48,6 +48,62 @@ document.addEventListener("DOMContentLoaded", () => {
 
     });
 
+    document.getElementById("system-form").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const size = parseInt(document.getElementById("matrix-size").value);
+        const method = document.querySelector(".switch-option.active").dataset.method;
+
+        // ====== 1. Leer matriz del HTML ======
+        let matrix = [];
+
+        for (let i = 0; i < size; i++) {
+            let row = [];
+
+            for (let j = 0; j < size + 1; j++) {
+                const input = document.getElementById(`cell-${i}-${j}`);
+                row.push(parseFloat(input.value) || 0);
+            }
+
+            matrix.push(row);
+        }
+
+        // ====== 2. Armar request ======
+        const payload = {
+            method: method,
+            matrix: matrix
+        };
+
+        try {
+            // ====== 3. Llamar API ======
+            const response = await fetch("/api/calculator/calculate", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            let data;
+
+            if (response.ok) {
+                data = await response.json();
+
+                document.getElementById("solution-container").innerHTML =
+                    data.root.split("|").map(x => `<div>${x}</div>`).join("");
+
+            } else {
+                const errorText = await response.text();
+                throw new Error(errorText);
+            }
+
+            // ====== 4. Mostrar resultado ======
+            document.getElementById("solution-container").innerHTML = data.root.split("|").map(x => `<div>${x}</div>`).join("");
+
+        } catch (error) {
+            alert("Error: " + error.message);
+        }
+    });
 });
 
 
@@ -69,7 +125,9 @@ function generateMatrix(n) {
             const input = document.createElement("input");
             input.type = "number";
             input.classList.add("matrix-input");
-            input.name = `a_${i}_${j}`;
+
+            // CLAVE
+            input.id = `cell-${i}-${j}`;
 
             row.appendChild(input);
         }
@@ -81,19 +139,12 @@ function generateMatrix(n) {
         const b = document.createElement("input");
         b.type = "number";
         b.classList.add("matrix-input");
-        b.name = `b_${i}`;
+
+        // CLAVE (última columna)
+        b.id = `cell-${i}-${n}`;
 
         row.appendChild(b);
 
         container.appendChild(row);
     }
 }
-
-document.getElementById("system-form")
-    .addEventListener("submit", function (e) {
-
-        e.preventDefault();
-
-        console.log("Calcular sistema");
-
-    });
