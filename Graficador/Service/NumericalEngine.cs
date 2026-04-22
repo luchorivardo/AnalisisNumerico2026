@@ -1,4 +1,309 @@
-﻿using Calculus;
+﻿//using Calculus;
+//using Graficador.Models;
+//using System.Globalization;
+
+//namespace Graficador.Service
+//{
+//    public class NumericalEngine
+//    {
+//        private readonly Calculo _analizador = new Calculo();
+
+//        // =========================
+//        // MANAGER
+//        // =========================
+//        public CalculationResponse ExecuteMethod(CalculationRequest req)
+//        {
+//            string methodLower = req.Method.ToLower();
+
+//            // Validaciones para métodos de búsqueda de raíces (Bisección, Newton, etc.)
+//            if (methodLower != "gaussjordan")
+//            {
+//                if (string.IsNullOrEmpty(req.Function) || !_analizador.Sintaxis(req.Function, 'x'))
+//                    throw new Exception("Error de sintaxis en la función.");
+
+//                if (req.Tolerance <= 0)
+//                    throw new Exception("La tolerancia debe ser positiva.");
+
+//                if (req.MaxIterations <= 0)
+//                    throw new Exception("Las iteraciones deben ser mayores que cero.");
+//            }
+
+//            return methodLower switch
+//            {
+//                "bisection" or "falserule"
+//                    => ClosedMethod(methodLower, req.Function!, req.XStart, req.XEnd, req.Tolerance, req.MaxIterations),
+
+//                "newton" or "secant"
+//                    => OpenMethod(methodLower, req.Function!, req.XStart, req.XEnd, req.Tolerance, req.MaxIterations),
+
+//                "gaussjordan"
+//                     => SolveGaussJordan(req.Matrix),
+
+//                _ => throw new Exception("Método no implementado")
+//            };
+//        }
+
+//        // =========================
+//        // MÉTODOS CERRADOS
+//        // =========================
+//        private CalculationResponse ClosedMethod(string method, string fx, double? xi, double? xd, double tol, int maxIter)
+//        {
+//            if (xi == null || xd == null)
+//                throw new Exception("Los métodos cerrados requieren Xi y Xd.");
+
+//            double xLeft = xi.Value;
+//            double xRight = xd.Value;
+
+//            var res = new CalculationResponse();
+
+//            double fXi = _analizador.EvaluaFx(xLeft);
+//            double fXd = _analizador.EvaluaFx(xRight);
+
+//            if (fXi * fXd > 0)
+//                throw new Exception("El intervalo no contiene raíz.");
+
+//            string ggb = $"f(x)={fx};";
+
+//            double xr = 0;
+//            double xrAnterior = 0;
+//            double error = double.MaxValue;
+
+//            for (int i = 1; i <= maxIter; i++)
+//            {
+//                xr = method switch
+//                {
+//                    "bisection" => (xLeft + xRight) / 2,
+//                    "falserule" => (fXd * xLeft - fXi * xRight) / (fXd - fXi),
+//                    _ => throw new Exception("Método cerrado no válido")
+//                };
+
+//                double fXr = _analizador.EvaluaFx(xr);
+
+//                if (i > 1 && xr != 0)
+//                    error = Math.Abs((xr - xrAnterior) / xr);
+
+//                res.Iterations.Add(new IterationPoint
+//                {
+//                    Iteration = i,
+//                    X = xr,
+//                    Y = fXr,
+//                    Error = error
+//                });
+
+//                if (Math.Abs(fXr) < tol || error < tol)
+//                    break;
+
+//                if (fXi * fXr > 0)
+//                {
+//                    xLeft = xr;
+//                    fXi = fXr;
+//                }
+//                else
+//                {
+//                    xRight = xr;
+//                    fXd = fXr;
+//                }
+
+//                xrAnterior = xr;
+//            }
+
+//            string xrStr = xr.ToString(CultureInfo.InvariantCulture);
+
+//            ggb += $"PXr=({xrStr},f({xrStr}));";
+//            ggb += $"Xr: x={xrStr};";
+
+//            res.Root = xrStr;
+//            res.GgbCommand = ggb;
+
+//            return res;
+//        }
+
+//        // =========================
+//        // MÉTODOS ABIERTOS
+//        // =========================
+//        private CalculationResponse OpenMethod(string method, string fx, double? xi, double? xd, double tol, int maxIter)
+//        {
+//            if (xi == null)
+//                throw new Exception("Debe ingresar Xi.");
+
+//            if (method == "secant" && xd == null)
+//                throw new Exception("El método de la secante requiere Xi y Xd.");
+
+//            double xLeft = xi.Value;
+//            double xRight = xd ?? 0;
+
+//            var res = new CalculationResponse();
+
+//            string ggb = $"f(x)={fx};";
+
+//            double xr = 0;
+//            double xrAnterior = 0;
+//            double error = double.MaxValue;
+
+//            double fXi = _analizador.EvaluaFx(xLeft);
+
+//            if (Math.Abs(fXi) < tol)
+//            {
+//                res.Root = xLeft.ToString(CultureInfo.InvariantCulture);
+//                return res;
+//            }
+
+//            if (method == "secant")
+//            {
+//                double fXd = _analizador.EvaluaFx(xRight);
+
+//                if (Math.Abs(fXd) < tol)
+//                {
+//                    res.Root = xRight.ToString(CultureInfo.InvariantCulture);
+//                    return res;
+//                }
+//            }
+
+//            for (int i = 1; i <= maxIter; i++)
+//            {
+//                xr = method switch
+//                {
+//                    "newton" => CalcularNewton(xLeft, tol),
+//                    "secant" => CalcularSecante(xLeft, xRight),
+//                    _ => throw new Exception("Método abierto no válido")
+//                };
+
+//                if (double.IsNaN(xr) || double.IsInfinity(xr))
+//                    throw new Exception("El método diverge.");
+
+//                double fXr = _analizador.EvaluaFx(xr);
+
+//                if (i > 1 && xr != 0)
+//                    error = Math.Abs((xr - xrAnterior) / xr);
+
+//                res.Iterations.Add(new IterationPoint
+//                {
+//                    Iteration = i,
+//                    X = xr,
+//                    Y = fXr,
+//                    Error = error
+//                });
+
+//                if (Math.Abs(fXr) < tol || error < tol)
+//                    break;
+
+//                if (method == "newton")
+//                {
+//                    xLeft = xr;
+//                }
+//                else
+//                {
+//                    xLeft = xRight;
+//                    xRight = xr;
+//                }
+
+//                xrAnterior = xr;
+//            }
+
+//            string xrStr = xr.ToString(CultureInfo.InvariantCulture);
+
+//            ggb += $"PXr=({xrStr},f({xrStr}));";
+//            ggb += $"Xr: x={xrStr};";
+
+//            res.Root = xrStr;
+//            res.GgbCommand = ggb;
+
+//            return res;
+//        }
+
+//        // =========================
+//        // HELPERS
+//        // =========================
+//        private double CalcularNewton(double xi, double tol)
+//        {
+//            double fXi = _analizador.EvaluaFx(xi);
+//            double derivada = _analizador.Dx(xi);
+
+//            if (Math.Abs(derivada) < tol || double.IsNaN(derivada))
+//                return double.NaN;
+
+//            return xi - (fXi / derivada);
+//        }
+
+//        private double CalcularSecante(double xi, double xd)
+//        {
+//            double fXi = _analizador.EvaluaFx(xi);
+//            double fXd = _analizador.EvaluaFx(xd);
+
+//            if (fXd - fXi == 0)
+//                return double.NaN;
+
+//            return (fXd * xi - fXi * xd) / (fXd - fXi);
+//        }
+
+
+//        public CalculationResponse SolveGaussJordan(double[][]? matrix)
+//        {
+//            if (matrix == null || matrix.Length == 0)
+//                throw new Exception("La matriz no puede estar vacía.");
+
+//            int n = matrix.Length;    // Dimensión [cite: 10]
+//            int m = matrix[0].Length; // Dimensión + 1 
+
+//            if (m != n + 1)
+//                throw new Exception("La matriz debe ser aumentada (n x n+1).");
+
+//            var res = new CalculationResponse();
+
+//            [cite_start]// 1) Bucle general que recorre cada fila de la diagonal principal [cite: 9]
+//            for (int rowDiag = 0; rowDiag < n; rowDiag++)
+//            {
+//                [cite_start]// 2.a) Obtener el coeficiente de la diagonal principal [cite: 11, 12]
+//                double coeficienteDiagonal = matrix[rowDiag][rowDiag];
+
+//                if (Math.Abs(coeficienteDiagonal) < 1e-12)
+//                    throw new Exception("El sistema tiene un coeficiente diagonal nulo; requiere pivoteo previo.");
+
+//                [cite_start]// 2.b) Bucle para recorrer columnas y dividir por el coeficiente obtenido 
+//                for (int col = 0; col < m; col++)
+//                {
+//                    matrix[rowDiag][col] = matrix[rowDiag][col] / coeficienteDiagonal;
+//                }
+
+//                [cite_start]// 2.c) Bucle para recorrer las filas salteando la fila actual (rowDiag != row) 
+//                for (int row = 0; row < n; row++)
+//                {
+//                    if (row != rowDiag)
+//                    {
+//                        [cite_start]// 2.d) Obtener el coeficiente que quiero hacer cero [cite: 15]
+//                        double coeficienteCero = matrix[row][rowDiag];
+
+//                        [cite_start]// 2.e) Bucle para recorrer columnas y aplicar la fórmula para anular el valor [cite: 16, 17]
+//                        for (int col = 0; col < m; col++)
+//                        {
+//                            [cite_start]// Ejemplo: matriz[1,0] = matriz[1,0] - (coeficienteCero * matriz[0,0]) 
+//                            matrix[row][col] = matrix[row][col] - (coeficienteCero * matrix[rowDiag][col]);
+//                        }
+//                    }
+//                }
+//            }
+
+//            [cite_start]// 3) Obtener los valores de los términos independientes (columna m-1) 
+//            double[] vectorResultado = new double[n];
+//            List<string> solutions = new List<string>();
+
+//            for (int i = 0; i < n; i++)
+//            {
+//                vectorResultado[i] = matrix[i][n];
+//                double val = Math.Round(vectorResultado[i], 6);
+//                solutions.Add($"x{i + 1} = {val.ToString(CultureInfo.InvariantCulture)}");
+//            }
+
+//            res.Root = string.Join(" | ", solutions);
+//            res.GgbCommand = "";
+
+//            return res;
+//        }
+
+//    }
+//}
+
+using Calculus;
 using Graficador.Models;
 using System.Globalization;
 
@@ -8,45 +313,117 @@ namespace Graficador.Service
     {
         private readonly Calculo _analizador = new Calculo();
 
-        // =========================
-        // MANAGER
-        // =========================
-        public CalculationResponse ExecuteMethod(CalculationRequest req)
-        {
-            string methodLower = req.Method.ToLower();
 
-            // Validaciones para métodos de búsqueda de raíces (Bisección, Newton, etc.)
-            if (methodLower != "gaussjordan")
+            public CalculationResponse ExecuteMethod(CalculationRequest req)
             {
-                if (string.IsNullOrEmpty(req.Function) || !_analizador.Sintaxis(req.Function, 'x'))
-                    throw new Exception("Error de sintaxis en la función.");
+                string methodLower = req.Method.ToLower();
 
-                if (req.Tolerance <= 0)
-                    throw new Exception("La tolerancia debe ser positiva.");
+                if (methodLower != "gaussjordan" && methodLower != "gaussseidel")
+                {
+                    if (string.IsNullOrEmpty(req.Function) || !_analizador.Sintaxis(req.Function, 'x'))
+                        throw new Exception("Error de sintaxis en la función.");
+                    if (req.Tolerance <= 0) throw new Exception("La tolerancia debe ser positiva.");
+                    if (req.MaxIterations <= 0) throw new Exception("Las iteraciones deben ser mayores que cero.");
+                }
 
-                if (req.MaxIterations <= 0)
-                    throw new Exception("Las iteraciones deben ser mayores que cero.");
+                return methodLower switch
+                {
+                    "bisection" or "falserule" => ClosedMethod(methodLower, req.Function!, req.XStart, req.XEnd, req.Tolerance, req.MaxIterations),
+                    "newton" or "secant" => OpenMethod(methodLower, req.Function!, req.XStart, req.XEnd, req.Tolerance, req.MaxIterations),
+                    "gaussjordan" => SolveGaussJordan(req.Matrix),
+                    "gaussseidel" => SolveGaussSeidel(req.Matrix, req.Tolerance, req.MaxIterations),
+                    _ => throw new Exception("Método no implementado")
+                };
             }
 
-            return methodLower switch
+            public CalculationResponse SolveGaussJordan(double[][]? matrix)
             {
-                "bisection" or "falserule"
-                    => ClosedMethod(methodLower, req.Function!, req.XStart, req.XEnd, req.Tolerance, req.MaxIterations),
+                if (matrix == null || matrix.Length == 0) throw new Exception("Matriz vacía.");
+                int n = matrix.Length;
+                int m = matrix[0].Length;
 
-                "newton" or "secant"
-                    => OpenMethod(methodLower, req.Function!, req.XStart, req.XEnd, req.Tolerance, req.MaxIterations),
+                for (int rowDiag = 0; rowDiag < n; rowDiag++)
+                {
+                    double coefDiag = matrix[rowDiag][rowDiag];
+                    if (Math.Abs(coefDiag) < 1e-12) throw new Exception("Diagonal nula. Requiere pivoteo.");
 
-                "gaussjordan"
-                     => SolveGaussJordan(req.Matrix),
+                    for (int col = 0; col < m; col++)
+                    {
+                        matrix[rowDiag][col] /= coefDiag;
+                    }
 
-                _ => throw new Exception("Método no implementado")
-            };
-        }
+                    for (int row = 0; row < n; row++)
+                    {
+                        if (row != rowDiag)
+                        {
+                           
+                            double coefCero = matrix[row][rowDiag];
+                            for (int col = 0; col < m; col++)
+                            {
+                                matrix[row][col] -= (coefCero * matrix[rowDiag][col]);
+                            }
+                        }
+                    }
+                }
 
-        // =========================
-        // MÉTODOS CERRADOS
-        // =========================
-        private CalculationResponse ClosedMethod(string method, string fx, double? xi, double? xd, double tol, int maxIter)
+                return FormatSystemResponse(matrix, n);
+            }
+
+            public CalculationResponse SolveGaussSeidel(double[][]? matrix, double tolerance, int maxIter)
+            {
+                if (matrix == null || matrix.Length == 0) throw new Exception("Matriz vacía.");
+                int n = matrix.Length;
+                double[] x = new double[n];
+                double[] xOld = new double[n];
+                int iter = 0;
+                bool converge = false;
+
+                while (iter < maxIter && !converge)
+                {
+                    iter++;
+                    Array.Copy(x, xOld, n);
+
+                    for (int i = 0; i < n; i++)
+                    {
+                        double suma = matrix[i][n];
+                        for (int j = 0; j < n; j++)
+                        {
+                            if (i != j) suma -= matrix[i][j] * x[j];
+                        }
+                        x[i] = suma / matrix[i][i];
+                    }
+
+                    int hits = 0;
+                    for (int i = 0; i < n; i++)
+                    {
+                        double error = x[i] == 0 ? Math.Abs(x[i] - xOld[i]) : Math.Abs((x[i] - xOld[i]) / x[i]);
+                        if (error < tolerance) hits++;
+                    }
+                    converge = (hits == n);
+                }
+
+                if (!converge) throw new Exception("El método no convergió (posible matriz no dominante).");
+
+                var res = new CalculationResponse();
+                res.Root = string.Join(" | ", x.Select((val, i) => $"x{i + 1} = {Math.Round(val, 6)}"));
+                return res;
+            }
+
+            private CalculationResponse FormatSystemResponse(double[][] matrix, int n)
+            {
+                var res = new CalculationResponse();
+                List<string> sols = new List<string>();
+                for (int i = 0; i < n; i++)
+                    sols.Add($"x{i + 1} = {Math.Round(matrix[i][n], 6).ToString(CultureInfo.InvariantCulture)}");
+
+                res.Root = string.Join(" | ", sols);
+                return res;
+            }
+
+            //        // =========================
+            //        // MÉTODOS CERRADOS
+            //        // =========================
+            private CalculationResponse ClosedMethod(string method, string fx, double? xi, double? xd, double tol, int maxIter)
         {
             if (xi == null || xd == null)
                 throw new Exception("Los métodos cerrados requieren Xi y Xd.");
@@ -117,10 +494,9 @@ namespace Graficador.Service
 
             return res;
         }
-
         // =========================
-        // MÉTODOS ABIERTOS
-        // =========================
+        //        // MÉTODOS ABIERTOS
+        //        // =========================
         private CalculationResponse OpenMethod(string method, string fx, double? xi, double? xd, double tol, int maxIter)
         {
             if (xi == null)
@@ -236,75 +612,8 @@ namespace Graficador.Service
             return (fXd * xi - fXi * xd) / (fXd - fXi);
         }
 
-    
-    public CalculationResponse SolveGaussJordan(double[][]? matrix)
-        {
-            if (matrix == null || matrix.Length == 0)
-                throw new Exception("La matriz no puede estar vacía.");
 
-            int n = matrix.Length;    // Número de filas (ecuaciones)
-            int m = matrix[0].Length; // Número de columnas (debe ser n + 1)
 
-            if (m != n + 1)
-                throw new Exception("La matriz debe ser aumentada (n x n+1).");
-
-            var res = new CalculationResponse();
-
-            for (int i = 0; i < n; i++)
-            {
-                // --- 1. Pivoteo Parcial ---
-                int pivot = i;
-                for (int k = i + 1; k < n; k++)
-                {
-                    if (Math.Abs(matrix[k][i]) > Math.Abs(matrix[pivot][i]))
-                        pivot = k;
-                }
-
-                // Intercambio de filas (usando una referencia temporal)
-                double[] temp = matrix[pivot];
-                matrix[pivot] = matrix[i];
-                matrix[i] = temp;
-
-                // Verificar si el sistema tiene solución
-                if (Math.Abs(matrix[i][i]) < 1e-12)
-                    throw new Exception("El sistema no tiene solución única o es singular.");
-
-                // --- 2. Normalización (Hacer el pivote = 1) ---
-                double div = matrix[i][i];
-                for (int j = i; j < m; j++)
-                {
-                    matrix[i][j] /= div;
-                }
-
-                // --- 3. Eliminación (Hacer ceros arriba y abajo del pivote) ---
-                for (int k = 0; k < n; k++)
-                {
-                    if (k != i)
-                    {
-                        double factor = matrix[k][i];
-                        for (int j = i; j < m; j++)
-                        {
-                            matrix[k][j] -= factor * matrix[i][j];
-                        }
-                    }
-                }
-            }
-
-            // --- 4. Extracción de Resultados ---
-            // En Gauss-Jordan, tras la eliminación, la última columna contiene las soluciones.
-            List<string> solutions = new List<string>();
-            for (int i = 0; i < n; i++)
-            {
-                // Formateamos como x1 = valor, x2 = valor, etc.
-                double val = Math.Round(matrix[i][n], 6);
-                solutions.Add($"x{i + 1} = {val.ToString(CultureInfo.InvariantCulture)}");
-            }
-
-            res.Root = string.Join(" | ", solutions);
-            res.GgbCommand = ""; // Gauss-Jordan no genera un comando de GeoGebra estándar aquí
-
-            return res;
-        }
+        // ... Aquí irían tus métodos ClosedMethod, OpenMethod y Helpers (Newton/Secante) ...
     }
-
 }
