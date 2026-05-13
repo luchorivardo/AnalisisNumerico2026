@@ -32,7 +32,16 @@ document.addEventListener("submit", function (e) {
             },
             body: JSON.stringify(data)
         })
-            .then(res => res.json())
+            .then(async res => {
+
+                const text = await res.text();
+
+                if (!res.ok) {
+                    throw new Error(text);
+                }
+
+                return JSON.parse(text);
+            })
             .then(result => {
 
                 console.log(result);
@@ -87,6 +96,9 @@ document.addEventListener("submit", function (e) {
                     });
                 }
             })
-            .catch(err => console.error(err));
+            .catch(err => {
+                alert("Error: " + err.message);
+                console.error(err);
+            });
     }
 });

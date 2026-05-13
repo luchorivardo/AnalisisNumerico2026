@@ -157,6 +157,8 @@ namespace Graficador.Service
             double xrAnterior = 0;
             double error = double.MaxValue;
 
+            bool converge = false;
+
             for (int i = 1; i <= maxIter; i++)
             {
                 xr = method switch
@@ -180,7 +182,11 @@ namespace Graficador.Service
                 });
 
                 if (Math.Abs(fXr) < tol || error < tol)
+                {
+                    converge = true;
                     break;
+                }
+
 
                 if (fXi * fXr > 0)
                 {
@@ -195,6 +201,9 @@ namespace Graficador.Service
 
                 xrAnterior = xr;
             }
+
+            if (!converge)
+                throw new Exception("El método no convergió. No se encontró una raíz con la tolerancia dada.");
 
             string xrStr = xr.ToString(CultureInfo.InvariantCulture);
 
@@ -248,16 +257,20 @@ namespace Graficador.Service
                 }
             }
 
+            bool converge = false;
+
             for (int i = 1; i <= maxIter; i++)
             {
                 xr = method switch
                 {
                     "newton" => CalcularNewton(xLeft, tol),
-                    "secant" => CalcularSecante(xLeft, xRight),
+                    "secant" => CalcularSecante(xLeft, xRight, tol),
                     _ => throw new Exception("Método abierto no válido")
                 };
 
-                if (double.IsNaN(xr) || double.IsInfinity(xr))
+                if (double.IsInfinity(xr))
+                    throw new Exception("El método diverge.");
+                if (Math.Abs(xr) > 1e10)
                     throw new Exception("El método diverge.");
 
                 double fXr = _analizador.EvaluaFx(xr);
@@ -274,7 +287,10 @@ namespace Graficador.Service
                 });
 
                 if (Math.Abs(fXr) < tol || error < tol)
+                {
+                    converge = true;
                     break;
+                }
 
                 if (method == "newton")
                 {
@@ -288,6 +304,9 @@ namespace Graficador.Service
 
                 xrAnterior = xr;
             }
+
+            if (!converge)
+                throw new Exception("El método no convergió. Posible divergencia o raíz inexistente.");
 
             string xrStr = xr.ToString(CultureInfo.InvariantCulture);
 
@@ -308,19 +327,44 @@ namespace Graficador.Service
             double fXi = _analizador.EvaluaFx(xi);
             double derivada = _analizador.Dx(xi);
 
-            if (Math.Abs(derivada) < tol || double.IsNaN(derivada))
-                return double.NaN;
+            if (double.IsNaN(derivada))
+                throw new Exception(
+                    "La derivada evaluada es inválida (NaN). " +
+                    "Newton-Raphson no puede continuar."
+                );
+
+            if (double.IsInfinity(derivada))
+                throw new Exception(
+                    "La derivada evaluada tiende a infinito. " +
+                    "Newton-Raphson no puede continuar."
+                );
+
+            if (Math.Abs(derivada) < tol)
+                throw new Exception(
+                    $"La derivada es demasiado cercana a cero " +
+                    $"(f'(x) ≈ {derivada:E2}). " +
+                    "Newton-Raphson se vuelve inestable."
+                );
+
 
             return xi - (fXi / derivada);
         }
 
-        private double CalcularSecante(double xi, double xd)
+        private double CalcularSecante(double xi, double xd, double tol)
         {
             double fXi = _analizador.EvaluaFx(xi);
             double fXd = _analizador.EvaluaFx(xd);
 
-            if (fXd - fXi == 0)
-                return double.NaN;
+            double denominador = fXd - fXi;
+
+            if (Math.Abs(denominador) < tol)
+            {
+                throw new Exception(
+                    $"f(xi) y f(xd) tienden a ser iguales: \n" +
+                    $"(f(xd)-f(xi) ≈ {denominador:E2}). \n" +
+                    $"La secante se vuelve inestable y no puede aproximar la raíz."
+                );
+            }
 
             return (fXd * xi - fXi * xd) / (fXd - fXi);
         }
