@@ -128,27 +128,35 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("regression-form").addEventListener("submit", async function (e) {
         e.preventDefault();
 
+        // Validación inicial básica
         if (pointsArray.length < 2) {
             alert("Se requieren al menos 2 puntos para realizar una regresión.");
             return;
         }
 
-        // 1. Armar el payload basado en el modelo C#
         let payload = {
             puntosCargados: pointsArray,
             tolerancia: parseFloat(document.getElementById("tolerance").value),
             method: currentMethod
         };
 
-        // Si es polinomial, mandamos el grado (deberás agregar 'Degree' a tu Request en C# luego)
+        // Validación específica para Polinomial
         if (currentMethod === "polynomial") {
-            payload.degree = parseInt(document.getElementById("poly-degree").value);
+            const degree = parseInt(document.getElementById("poly-degree").value);
+
+            // Verificamos la regla matemática: puntos >= grado + 1
+            if (pointsArray.length < degree + 1) {
+                alert(`Para un polinomio de grado ${degree}, necesitas ingresar al menos ${degree + 1} puntos.`);
+                return;
+            }
+            payload.degree = degree;
         }
 
         console.log("PAYLOAD REGRESIÓN:", payload);
 
         try {
-            // Asegúrate de que la ruta coincida con el controlador que creamos
+            // OJO AQUÍ: Revisa si tu controlador en C# se llama RegressionController 
+            // Si es así, la ruta suele ser "/api/Regression/calculate" (en singular)
             const response = await fetch("/api/regressions/calculate", {
                 method: "POST",
                 headers: {
@@ -165,16 +173,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const data = JSON.parse(text);
 
-            // 2. Mostrar Resultados en la UI
+            // Mostrar Resultados en la UI
             document.getElementById("res-function").innerText = data.funcion;
             document.getElementById("res-correlation").innerText = data.efectividadPorcentaje;
             document.getElementById("res-effectiveness").innerText = data.efectividadMensaje;
 
-            // 3. Dibujar en GeoGebra
+            // Dibujar en GeoGebra
             drawInGeoGebra(data.funcion);
 
         } catch (error) {
-            alert("Error: " + error.message);
+            alert("Error del servidor: " + error.message);
         }
     });
 
