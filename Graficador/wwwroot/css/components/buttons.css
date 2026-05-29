@@ -20,3 +20,36 @@
     .btn-primary:active {
         transform: scale(0.98);
     }
+
+/* BOTÓN */
+.btn-secundary {
+    padding: 10px;
+    border-radius: 8px;
+    border: 2px solid #111827;
+    background: white;
+    color: #111827;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    font-family: 'Montserrat', sans-serif;
+}
+
+    /* HOVER BOTÓN */
+    .btn-secundary:hover {
+        background: #1e293b;
+        border: 2px solid #1e293b;
+        color: white;
+    }
+
+    /* CLICK */
+    .btn-secundary:active {
+        transform: scale(0.98);
+    }
+
+#btn-delete-all:hover {
+    background: #531a1a;
+    border: 2px solid #111827;
+}
+
+#btn-delete-last:hover {
+    background: #a1791e
+}

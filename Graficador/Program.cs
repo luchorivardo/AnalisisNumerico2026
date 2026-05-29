@@ -1,7 +1,11 @@
+using Graficador.Service;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<IRegressionService, RegressionService>();
 
 var app = builder.Build();
 
