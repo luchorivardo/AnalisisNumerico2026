@@ -18,7 +18,7 @@ namespace Graficador.Controllers
 
         [HttpPost("calculate")]
         public IActionResult Calculate([FromBody] RegressionRequest request)
-        {
+            {
             try
             {
                 // Validaciones básicas de entrada antes de procesar

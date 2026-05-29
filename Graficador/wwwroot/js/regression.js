@@ -85,12 +85,33 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Borrar último
-    document.getElementById("btn-delete-last").addEventListener("click", () => {
-        if (pointsArray.length > 0) {
-            pointsArray.pop();
-            updatePointsUI();
+    // =========================
+    // BORRAR SELECCIÓN
+    // =========================
+    document.getElementById("btn-delete-selected").addEventListener("click", () => {
+        // Obtenemos todas las opciones actuales en la vista
+        const options = pointsList.options;
+
+        // Verificamos si hay al menos un elemento seleccionado
+        if (pointsList.selectedOptions.length === 0) {
+            alert("Por favor, selecciona al menos un punto de la lista para eliminar.");
+            return;
         }
+
+        // Creamos un nuevo array filtrando solo los que NO están seleccionados
+        let newPointsArray = [];
+        for (let i = 0; i < options.length; i++) {
+            if (!options[i].selected) {
+                newPointsArray.push(pointsArray[i]);
+            }
+        }
+
+        // Actualizamos nuestro array principal y repintamos la interfaz
+        pointsArray = newPointsArray;
+        updatePointsUI();
+
+        // Opcional: si borramos puntos, limpiamos la gráfica para evitar confusión visual
+        if (typeof ggbApp !== "undefined") ggbApp.reset();
     });
 
     // Borrar todos
@@ -128,7 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             // Asegúrate de que la ruta coincida con el controlador que creamos
-            const response = await fetch("/api/regression/calculate", {
+            const response = await fetch("/api/regressions/calculate", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

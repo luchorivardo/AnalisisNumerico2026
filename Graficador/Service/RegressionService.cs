@@ -1,4 +1,5 @@
 ﻿using Graficador.Models.Regression;
+using System.Globalization; // <-- Necesitas agregar esto
 
 namespace Graficador.Service
 {
@@ -45,10 +46,19 @@ namespace Graficador.Service
 
             double r = Math.Sqrt((st - sr) / st) * 100;
 
+            // ==========================================
+            // FORMATEO CORRECTO PARA GEOGEBRA (SIN COMAS)
+            // ==========================================
+            string a1Str = Math.Round(a1, 4).ToString(CultureInfo.InvariantCulture);
+            string a0Str = Math.Abs(Math.Round(a0, 4)).ToString(CultureInfo.InvariantCulture);
+
+            // Evaluamos si a0 es negativo para poner el signo correcto y evitar el "+ -"
+            string signoA0 = a0 >= 0 ? "+" : "-";
+
             // Paso 10: Retorno
             return new RegressionResponse
             {
-                Funcion = $"y = {Math.Round(a1, 4)}x + {Math.Round(a0, 4)}",
+                Funcion = $"y = {a1Str}x {signoA0} {a0Str}",
                 EfectividadPorcentaje = $"{Math.Round(r, 2)}%",
                 EfectividadMensaje = r >= (req.Tolerancia * 100) ? "Ajuste aceptable" : "Ajuste no aceptable"
             };
