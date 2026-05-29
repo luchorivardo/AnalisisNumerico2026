@@ -6,6 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<IRegressionService, RegressionService>();
+builder.Services.AddScoped<IIntegrationService, IntegrationService>();
+
 
 var app = builder.Build();
 
