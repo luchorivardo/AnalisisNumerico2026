@@ -33,14 +33,17 @@ document.addEventListener("DOMContentLoaded", () => {
         const method = methodSelect.value;
         const nValue = parseInt(nInput.value);
 
-        // Validación frontend del PDF: Simpson 1/3 múltiple requiere par si no usas el combinado
+        // Validación frontend Simpson 1/3 múltiple requiere par si no usas el combinado
         if (method === "simpson_13_multiple" && nValue % 2 !== 0) {
             alert("El método Simpson 1/3 Múltiple puro requiere una cantidad PAR de subintervalos. Utiliza el método 'Combinado' si n es impar.");
             return;
         }
 
+        let rawFunction = document.getElementById("fx-input").value;
+        let cleanedFunction = rawFunction.replace(/\s+/g, '').replace(',', '.');
+
         let payload = {
-            function: document.getElementById("fx-input").value,
+            function: cleanedFunction,
             xi: parseFloat(document.getElementById("xi-input").value),
             xd: parseFloat(document.getElementById("xd-input").value),
             n: isNaN(nValue) ? 0 : nValue,
@@ -61,6 +64,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Mostrar Resultado
             document.getElementById("res-area").innerText = data.areaFormateada;
+
+            const selectedText = methodSelect.options[methodSelect.selectedIndex].text;
+            document.getElementById("res-method").innerText = selectedText;
 
             // Dibujar en GeoGebra
             drawInGeoGebra(payload.function, payload.xi, payload.xd);
