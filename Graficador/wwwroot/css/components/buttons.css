@@ -21,6 +21,11 @@
         transform: scale(0.98);
     }
 
+    .btn-primary:focus-visible {
+        outline: none; /* Quita el contorno por defecto del navegador */
+        box-shadow: 0 0 0 3px rgba(30, 41, 59, 0.4); /* Usa el color de tu hover con transparencia */
+    }   
+
 /* BOTÓN */
 .btn-secundary {
     padding: 10px;
@@ -31,6 +36,7 @@
     font-weight: 500;
     transition: all 0.2s ease;
     font-family: 'Montserrat', sans-serif;
+    width: 100%;
 }
 
     /* HOVER BOTÓN */
@@ -43,6 +49,10 @@
     /* CLICK */
     .btn-secundary:active {
         transform: scale(0.98);
+    }
+    .btn-secundary:focus-visible {
+        outline: none; /* Quita el contorno por defecto del navegador */
+        box-shadow: 0 0 0 3px rgba(30, 41, 59, 0.4); /* Usa el color de tu hover con transparencia */
     }
 
 #btn-delete-all:hover {

@@ -20,10 +20,10 @@
 
             <div class="form-group">
                 <label>Ingresar Punto:</label>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <input type="number" id="x-input" placeholder="X" step="any" style="flex: 1;">
-                    <input type="number" id="y-input" placeholder="Y" step="any" style="flex: 1;">
-                    <button type="button" id="btn-add-point" class="btn-secundary" style="padding: 8px 12px;">
+                <div style="display: flex; gap: 10px; align-items: center; flex-direction: column;">
+                    <input type="number" id="x-input" placeholder="X" step="any" style="flex: 1; width: 100% !important;">
+                    <input type="number" id="y-input" placeholder="Y" step="any" style="flex: 1; width: 100% !important;">
+                    <button type="button" id="btn-add-point" class="btn-secundary" style="padding: 8px 12px; width: 100% !important;">
                         Agregar
                     </button>
                 </div>
@@ -41,11 +41,11 @@
 
             <div class="form-group">
                 <label>Puntos Ingresados:</label>
-                <select id="points-list" multiple size="6" style="width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 5px;"></select>
+                <select id="points-list" multiple size="6"></select>
 
                 <div style="display: flex; gap: 10px; margin-top: 10px;">
-                    <button style="width: 90px;" type="button" id="btn-delete-selected" class="btn-secundary" style="flex: 1;">ELIMINAR SELECCIÓN</button>
-                    <button style="width: 90px;" type="button" id="btn-delete-all" class="btn-secundary" style="flex: 1;">BORRAR TODOS</button>
+                    <button type="button" id="btn-delete-selected" class="btn-secundary" style="flex: 2;">ELIMINAR SELECCIÓN</button>
+                    <button type="button" id="btn-delete-all" class="btn-secundary" style="flex: 1.5;">BORRAR TODOS</button>
                 </div>
             </div>
 
