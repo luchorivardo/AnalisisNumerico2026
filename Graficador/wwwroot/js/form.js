@@ -9,12 +9,13 @@ document.addEventListener("submit", function (e) {
         e.preventDefault();
 
         const formData = new FormData(e.target);
-        const xi = formData.get("xi");
-        const xd = formData.get("xd");
 
 
         const xiValue = formData.get("xi")?.toString().replace(',', '.');
         const xdValue = formData.get("xd")?.toString().replace(',', '.');
+        const tolValue = formData.get("tolerance")?.toString().replace(',', '.');
+
+        const funcValue = formData.get("function")?.toString().replace(/,/g, '.');
 
         const data = {
             method: formData.get("method"),
